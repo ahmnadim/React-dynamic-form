@@ -59,3 +59,6 @@
   color:rgb(236, 10, 78);
   font-size: 13px;
 }
+.cursor-pointer{
+  cursor: pointer;
+}
