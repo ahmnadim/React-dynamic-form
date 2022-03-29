@@ -3,6 +3,8 @@ import React, { useEffect, useState, useRef } from 'react';
 function List() {
 	const [headers, setHeaders] = useState(null);
 	const [rows, setRows] = useState([]);
+	const [searchTexts, setSearchTexts] = useState({});
+	const [searchResults, setSearchResults] = useState([]);
 	const [sortType, setSortType] = useState('');
 
 	useEffect(async () => {
@@ -15,7 +17,7 @@ function List() {
 				a['id'] > b['id'] ? 1 : b['id'] > a['id'] ? -1 : 0
 			)
 		);
-		setSortType('asc')
+		setSortType('asc');
 	}, []);
 
 	const dragItem = useRef();
@@ -58,12 +60,53 @@ function List() {
 		setRows(_rows);
 	};
 
+	const onSearch = (e, headerKey) => {
+		let searchResult = [];
+		const { name, value } = e.target;
+		const _searchTexts = { ...searchTexts };
+		_searchTexts[headerKey] = value;
+		setSearchTexts(_searchTexts);
+		let _rows = [...rows];
+		Object.keys(_searchTexts).map((text, i) => {
+			searchResult = _rows.filter((row) => {
+				if (row[text].toString().toLowerCase().includes(value.toLowerCase())) {
+					return row;
+				}
+			});
+			console.log('searchResults: ', searchResult, _searchTexts);
+			_rows = searchResult;
+		});
+
+		setSearchResults(searchResult);
+	};
+
 	if (!headers) return <h2>No data yet!</h2>;
 
 	return (
 		<>
 			<div className='container'>
+				<div className='search'></div>
 				<table className='table'>
+					<thead>
+						<tr>
+							{Object.keys(headers).map((headerKey, i) => {
+								if (
+									!headers[headerKey].hidden &&
+									headers[headerKey].searchable
+								) {
+									return (
+										<th className='searchBox' key={`search-${i}`}>
+											<input
+												type='text'
+												placeholder='search here...'
+												onChange={(e) => onSearch(e, headerKey)}
+											/>
+										</th>
+									);
+								}
+							})}
+						</tr>
+					</thead>
 					<thead>
 						<tr>
 							{Object.keys(headers).map((headerKey, i) => {
@@ -85,6 +128,57 @@ function List() {
 					</thead>
 					<tbody>
 						{rows.map((row, rowIndex) => {
+							return (
+								<tr
+									key={`row-${rowIndex}`}
+									draggable={true}
+									onDragStart={(e) => dragStartHandler(e, rowIndex)}
+									onDragOver={(e) => dragEnterHandler(e, rowIndex)}
+									onDrop={(e) => handleDragEnd(e, rowIndex)}
+								>
+									{Object.keys(headers).map((headerKey, i) => {
+										const item = headers[headerKey];
+										if (!item.hidden) {
+											return (
+												<td
+													scope='row'
+													key={`t-data-${headerKey}-${rowIndex}-${i}`}
+												>
+													{' '}
+													{row[headerKey]}
+												</td>
+											);
+										}
+									})}
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+				==========================================================================
+				==========================================================================
+				<table className='table'>
+					<thead>
+						<tr>
+							{Object.keys(headers).map((headerKey, i) => {
+								const item = headers[headerKey];
+								if (!item.hidden) {
+									return (
+										<th
+											scope='col'
+											key={`${headerKey}`}
+											className={item.sortable ? 'cursor-pointer' : ''}
+											onClick={(e) => sortList(e, headerKey, item)}
+										>
+											{item.title}
+										</th>
+									);
+								}
+							})}
+						</tr>
+					</thead>
+					<tbody>
+						{searchResults.map((row, rowIndex) => {
 							return (
 								<tr
 									key={`row-${rowIndex}`}
