@@ -2,6 +2,7 @@ import './App.css';
 import { useEffect } from 'react';
 import { Link, BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Form from './pages/form';
+import List from './pages/list';
 
 function App() {
 	return (
@@ -26,8 +27,8 @@ function App() {
 						<div className='collapse navbar-collapse' id='navbarNav'>
 							<ul className='navbar-nav'>
 								<li className='nav-item active'>
-									<Link to={'/'} className='nav-link' >
-										Home 
+									<Link to={'/list'} className='nav-link' >
+										List 
 									</Link>
 								</li>
 								<li className='nav-item'>
@@ -47,6 +48,7 @@ function App() {
 				</div>
 				<Routes>
 					<Route path='/form' element={<Form />}></Route>
+					<Route path='/list' element={<List />}></Route>
 					<Route path='/' element={<h1>Home page</h1>}></Route>
 				</Routes>
 			</Router>

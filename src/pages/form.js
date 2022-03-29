@@ -31,7 +31,7 @@ export default class componentName extends Component {
 		const validationRules = extractValidateRules(validate);
 		
 		const isValid = validator(e, field, validationRules)
-		console.log(name, value, validationRules, isValid);
+		console.log("form: ", name, value, validationRules, isValid);
 
 		this.setState({
 			...this.state,
@@ -39,7 +39,7 @@ export default class componentName extends Component {
 				...this.state.fields,
 				[name]: { ...this.state.fields[name], value },
 			},
-			errors: isValid
+			errors: {...this.state.errors, ...isValid}
 		});
 
 	};
@@ -100,6 +100,7 @@ export default class componentName extends Component {
 										<TextareaInput
 											data={{ field, key }}
 											handler={this.onChangeHandler}
+											errors={errors}
 										/>
 									) : null}
 

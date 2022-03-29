@@ -6,6 +6,7 @@ export default class TextareaInput extends Component {
 			this.props.data.field;
 		const { key } = this.props.data;
 		const { class: className, ...rest } = html_attr;
+		const {errors} = this.props;
 
 		return (
 			<>
@@ -22,6 +23,7 @@ export default class TextareaInput extends Component {
 					{...{ required }}
 					rows='3'
 				></textarea>
+				{errors && errors[key] && <span className='validation-error-msg'>{errors[key]}</span>}
 			</>
 		);
 	}

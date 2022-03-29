@@ -11,53 +11,60 @@ export const validator = (e, field, rules) => {
 	if (Object.keys(ifNeedValidation).length === 0) return null;
 
 	const validationObj = {};
-	const length = rules.length;
+	const length = rules?.length;
 
-	// if (!rules || rules.length === 0) return null;
-	if (required && (!value || value.length === 0)) {
-		validationObj[name] =
-			required && value.length === 0 ? `${title} is a Required field.` : '';
-		return validationObj;
+	if (required) {
+		if (!value || value.length === 0) {
+			validationObj[name] = `${title} is a Required field.`;
+			return validationObj;
+		}
+		if (value || value.length > 0) {
+			validationObj[name] = '';
+		}
 	}
 
-	for (let i = 0; i < length; i++) {
-		if (String(rules[i]).includes(':')) {
-			const _rule = rules[i].split(':');
-			const __rule = { [_rule[0]]: _rule[1] };
-			const _keys = Object.keys(__rule);
-			if (value.length < __rule['min']) {
-                validationObj[name] = `${title} minimum limit not fulfilled.`;
+	if (rules && rules.length > 0) {
+		for (let i = 0; i < length; i++) {
+			if (String(rules[i]).includes(':')) {
+				const _rule = rules[i].split(':');
+				const __rule = { [_rule[0]]: _rule[1] };
+				const _keys = Object.keys(__rule);
+				if (value.length < __rule['min']) {
+					validationObj[name] = `${title} minimum limit not fulfilled.`;
+				}
+				if (value.length >= __rule['max']) {
+					validationObj[name] = `${title} max limit exceeded.`;
+				}
+				continue;
 			}
-			if (value.length >= __rule['max']) {
-				validationObj[name] = `${title} max limit exceeded.`;
-			}
-            continue;
-		}
 
-		switch (rules[i]) {
-			case 'only_letters':
-				validationObj[name] = !only_letters.test(value)
-					? `${title} supports only letters.`
-					: '';
-				break;
-
-			case 'only_letter_number':
-				validationObj[name] = !only_letter_number.test(value)
-					? `${title} supports only letters and numbers.`
-					: '';
-				break;
-
-			case 'email':
-				validationObj[name] =
-					email.test(value) === false
-						? `${title} supports only valid E-mail.`
+			switch (rules[i]) {
+				case 'only_letters':
+					validationObj[name] = !only_letters.test(value)
+						? `${title} supports only letters.`
 						: '';
-				break;
+					break;
 
-			default:
-				validationObj[name] =
-					required && value.length === 0 ? `${title} is a Required field.` : '';
-				break;
+				case 'only_letter_number':
+					validationObj[name] = !only_letter_number.test(value)
+						? `${title} supports only letters and numbers.`
+						: '';
+					break;
+
+				case 'email':
+					validationObj[name] =
+						email.test(value) === false
+							? `${title} supports only valid E-mail.`
+							: '';
+					break;
+
+				default:
+					validationObj[name] =
+						required && value.length === 0
+							? `${title} is a Required field.`
+							: '';
+					break;
+			}
 		}
 	}
 
