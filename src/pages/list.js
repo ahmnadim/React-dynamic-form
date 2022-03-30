@@ -3,25 +3,40 @@ import React, { useEffect, useState, useRef } from 'react';
 function List() {
 	const [headers, setHeaders] = useState(null);
 	const [rows, setRows] = useState([]);
+	const [reorder, setReorder] = useState();
+	const [reorderResponse, setReorderResponse] = useState(null);
 	const [searchTexts, setSearchTexts] = useState({});
 	const [searchResults, setSearchResults] = useState([]);
 	const [sortType, setSortType] = useState('');
+	const [sortableKey, setSortableKey] = useState('');
+
+	let reorderTime;
 
 	useEffect(async () => {
 		const res = await fetch('http://localhost/api/list.php');
 		const data = await res.json();
 		console.log('List: ', data);
 		setHeaders(data.data.headers[0]);
-		setRows(
-			data.data.rows.sort((a, b) =>
-				a['id'] > b['id'] ? 1 : b['id'] > a['id'] ? -1 : 0
-			)
-		);
-		setSortType('asc');
+		setRows(data.data.rows);
+		return () => {
+			if (reorderTime) {
+				clearTimeout(reorderTime);
+			}
+		};
 	}, []);
 
-	const dragItem = useRef();
-	const dragItemNode = useRef();
+	const reorderApi = async () => {
+		const res = await fetch('http://localhost/api/reorder.php', {
+			method: 'POST',
+			body: JSON.stringify(reorder),
+		});
+		const data = await res.json();
+		console.log('reorder: ', data);
+		setReorderResponse(data);
+		reorderTime = setTimeout(() => {
+			setReorderResponse(null);
+		}, 4000);
+	};
 
 	const dragStartHandler = (e, dragItemIndex) => {
 		e.dataTransfer.setData('dragItem', dragItemIndex);
@@ -34,17 +49,18 @@ function List() {
 	const handleDragEnd = (e, targetItemIndex) => {
 		const dragItemIndex = e.dataTransfer.getData('dragItem');
 		if (targetItemIndex === dragItemIndex) return;
-
 		let newRows = [...rows];
-		const temp = newRows[dragItemIndex];
-		newRows[dragItemIndex] = newRows[targetItemIndex];
-		newRows[targetItemIndex] = temp;
-
+		const dragItem = newRows[dragItemIndex];
+		newRows.splice(+dragItemIndex, 1);
+		newRows.splice(targetItemIndex, 0, dragItem);
 		setRows(newRows);
+		setReorder(newRows);
+		reorderApi(newRows);
 	};
 
 	const sortList = (e, headerKey, item) => {
 		if (!item.sortable) return;
+		setSortableKey(headerKey);
 		const _rows = [...rows];
 		if (sortType === 'asc') {
 			_rows.sort((a, b) =>
@@ -65,12 +81,12 @@ function List() {
 		const _searchTexts = { ...searchTexts };
 		_searchTexts[headerKey] = value;
 		setSearchTexts(_searchTexts);
-	}
+	};
 
 	const onSearch = (e) => {
 		let searchResult = [];
-		
-		let _searchTexts = {...searchTexts};
+
+		let _searchTexts = { ...searchTexts };
 		let _rows = [...rows];
 		Object.keys(_searchTexts).map((text, i) => {
 			if (_searchTexts[text] != '' || _searchTexts[text].length != 0) {
@@ -84,7 +100,7 @@ function List() {
 						return row;
 					}
 				});
-				console.log('searchResults: ', searchResult, _searchTexts);
+				// console.log('searchResults: ', searchResult, _searchTexts);
 				_rows = searchResult;
 			}
 		});
@@ -97,7 +113,24 @@ function List() {
 	return (
 		<>
 			<div className='container'>
-				<div className='search'></div>
+				{reorderResponse !== null && reorderResponse.messages && (
+					<div className='alert-container'>
+						{reorderResponse.messages.map((msg, i) => {
+							
+							return (
+								<p key={`${msg}-${i}`}
+									className={
+										reorderResponse?.status == 'success'
+											? 'success-alert'
+											: 'danger-alert'
+									}
+								>
+									{msg}
+								</p>
+							);
+						})}
+					</div>
+				)}
 				<table className='table'>
 					<thead>
 						<tr>
@@ -117,13 +150,13 @@ function List() {
 									);
 								}
 							})}
-							<th className='searchBox' >
-											<input
-												type='button'
-												value={'Search'}
-												onClick={(e) => onSearch(e)}
-											/>
-										</th>
+							<th className='searchBox'>
+								<input
+									type='button'
+									value={'Search'}
+									onClick={(e) => onSearch(e)}
+								/>
+							</th>
 						</tr>
 					</thead>
 					<thead>
@@ -139,6 +172,13 @@ function List() {
 											onClick={(e) => sortList(e, headerKey, item)}
 										>
 											{item.title}
+											{item.sortable && headerKey == sortableKey ? (
+												sortType == 'desc' ? (
+													<img src='https://img.icons8.com/material-outlined/24/000000/sort-down.png' />
+												) : (
+													<img src='https://img.icons8.com/material-outlined/24/000000/sort-up.png' />
+												)
+											) : null}
 										</th>
 									);
 								}
@@ -164,7 +204,7 @@ function List() {
 													key={`t-data-${headerKey}-${rowIndex}-${i}`}
 												>
 													{' '}
-													{row[headerKey]}
+													{row[headerKey] && row[headerKey]}
 												</td>
 											);
 										}

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Link, BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Form from './pages/form';
 import List from './pages/list';
+import Update from './pages/update';
 
 function App() {
 	return (
@@ -37,8 +38,8 @@ function App() {
 									</Link>
 								</li>
 								<li className='nav-item'>
-									<Link to={'/form'} className='nav-link' >
-										Pricing
+									<Link to={'/update'} className='nav-link' >
+										Update
 									</Link>
 								</li>
 							
@@ -49,6 +50,7 @@ function App() {
 				<Routes>
 					<Route path='/form' element={<Form />}></Route>
 					<Route path='/list' element={<List />}></Route>
+					<Route path='/update' element={<Update />}></Route>
 					<Route path='/' element={<h1>Home page</h1>}></Route>
 				</Routes>
 			</Router>

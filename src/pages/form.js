@@ -5,6 +5,7 @@ import SelectInput from '../components/selectInput';
 import RadioInput from '../components/radioInput';
 import RepeaterInput from '../components/repeaterInput';
 import { validator } from '../hepers/validation';
+import HiddenInput from '../components/hidden';
 
 export default class componentName extends Component {
 	state = {
@@ -44,6 +45,25 @@ export default class componentName extends Component {
 
 	};
 
+	repeaterOnchangeHandler = ({value, errors}) => {
+		const _errors = {...this.state.errors}
+		let _repeater = []
+		if(Object.keys(_errors).includes('repeater')){
+			_repeater = [..._repeater, ..._errors.repeater]
+			
+		}
+		const _repIndex = Object.keys(errors.repeater)[0];
+		const singleError = {..._repeater[_repIndex], ...errors.repeater[_repIndex]}
+		console.log("singleError: ", singleError);
+		const err = [..._repeater]
+		err[_repIndex] = singleError
+		_errors.repeater = err;
+		
+		console.log("repeater handler: ", _repeater[_repIndex], errors.repeater[_repIndex]);
+
+		this.setState({...this.state, errors: {...this.state.errors,  ..._errors}})
+	}
+
 	onSubmitHandler = (e) => {
 		e.preventDefault();
 		console.log(e.target);
@@ -73,6 +93,12 @@ export default class componentName extends Component {
 							<span key={index}>
 								<div className='form-group'>
 									{/* <label htmlFor={rest?.id}>{field.title}</label> */}
+
+									{field.type == 'hidden' ? (
+										<HiddenInput
+											data={{ field, key }}
+										/>
+									) : null}
 
 									{field.type == 'select' ? (
 										<SelectInput
@@ -107,7 +133,7 @@ export default class componentName extends Component {
 									{field.type == 'repeater' ? (
 										<RepeaterInput
 											data={{ field, key }}
-											handler={this.onChangeHandler}
+											handler={this.repeaterOnchangeHandler}
 										/>
 									) : null}
 								</div>
@@ -117,7 +143,7 @@ export default class componentName extends Component {
 
 					<input
 						type='submit'
-						className='btn btn-primary mb-2 mt-2'
+						className='btn btn-primary mb-2 mt-2 float-right'
 						value='Submit'
 					/>
 				</form>

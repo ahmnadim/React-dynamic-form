@@ -7,6 +7,7 @@ export default class RepeaterInput extends Component {
 		repeater: [],
 		singleInstance: null,
 		value: [],
+		validate: '',
 	};
 
 	componentDidMount() {
@@ -15,9 +16,10 @@ export default class RepeaterInput extends Component {
 		console.log('fields: ', fieldsValues);
 		this.setState({
 			...this.state,
-			repeater: [repeater_fields],
+			repeater: [],
 			singleInstance: repeater_fields,
-			value: fieldsValues,
+			value: [],
+			validate: validate
 		});
 	}
 
@@ -26,16 +28,19 @@ export default class RepeaterInput extends Component {
 		const fields = [...this.state.repeater];
 		const singleBlock = fields[repeaterIndex];
 		const field = singleBlock[fieldName];
-		const { validate } = singleBlock;
+		const { validate } = this.state;
 
 		const validationRules = extractValidateRules(validate);
 		const isValid = validator(e, field, validationRules);
 
-		console.log(name, value, validationRules, isValid);
-
+		const errors = {repeater: []}
+		const err = []
+		errors.repeater[repeaterIndex] = isValid;
+		
 		const _value = [...this.state.value];
 		_value[repeaterIndex][fieldName] = value;
-
+		
+		this.props.handler({value: _value, errors})
 		this.setState({
 			...this.state,
 			repeater: [...this.state.repeater],
@@ -64,7 +69,7 @@ export default class RepeaterInput extends Component {
 		const multipleBlock = [...this.state.repeater];
 		const _values = [...this.state.value];
 
-		if (multipleBlock.length === 1) return false;
+		// if (multipleBlock.length === 1) return false;
 		this.setState({
 			...this.state,
 			repeater: multipleBlock.filter((item, i) => i !== repeaterIndex),
@@ -90,17 +95,18 @@ export default class RepeaterInput extends Component {
 		return (
 			<>
 				<div className='form-group'>
+				<label>{title}</label><br />
 					{repeater.map((item, repeaterIndex) => {
 						return (
 							<span key={`repeater-${repeaterIndex}`} className='single-block'>
-								{repeaterIndex !== 0 && (
+								{
 									<span
 										className='close-btn'
 										onClick={() => this.removeOne(repeaterIndex)}
 									>
 										X
 									</span>
-								)}
+								}
 								{Object.entries(repeater_fields).map(([key, field], index) => {
 									return (
 										<span key={`single-block-${index}`}>
@@ -125,7 +131,7 @@ export default class RepeaterInput extends Component {
 							</span>
 						);
 					})}
-					<button className='btn btn-primary ' onClick={this.addAnotherWork}>
+					<button className='btn btn-primary' onClick={this.addAnotherWork}>
 						Add
 					</button>
 				</div>

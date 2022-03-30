@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 export default class RadioInput extends Component {
 	render() {
-		const { html_attr, validate, required, title, type, value, options } =
+		const { html_attr, validate, required, title, type, value, options, default: defaultValue } =
 			this.props.data.field;
 		const { key } = this.props.data;
 		const { class: className, ...rest } = html_attr;
@@ -24,6 +24,7 @@ export default class RadioInput extends Component {
 									{...{ type }}
 									{...{ value: option.key }}
 									{...{ required }}
+									defaultChecked={defaultValue == option.key}
 								/>
                                 {/* FIXME api response have one single id for multiple radio button... as [rest.id] */}
 								<label className='form-check-label' htmlFor={option.key} >

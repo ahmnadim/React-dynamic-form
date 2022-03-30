@@ -1,6 +1,6 @@
-const only_letters = /^[A-Za-z]+$/;
+const only_letters = /^[a-zA-Z\s]*$/; 
 const only_numbers = /^\d+$/;
-const only_letter_number = /^[a-z0-9]+$/i;
+const only_letter_number = /^[a-z0-9\s]*$/;
 const email = /\S+@\S+\.\S+/;
 
 export const validator = (e, field, rules) => {
