@@ -54,12 +54,10 @@ export default class componentName extends Component {
 		}
 		const _repIndex = Object.keys(errors.repeater)[0];
 		const singleError = {..._repeater[_repIndex], ...errors.repeater[_repIndex]}
-		console.log("singleError: ", singleError);
 		const err = [..._repeater]
 		err[_repIndex] = singleError
 		_errors.repeater = err;
 		
-		console.log("repeater handler: ", _repeater[_repIndex], errors.repeater[_repIndex]);
 
 		this.setState({...this.state, errors: {...this.state.errors,  ..._errors}})
 	}
@@ -134,6 +132,7 @@ export default class componentName extends Component {
 										<RepeaterInput
 											data={{ field, key }}
 											handler={this.repeaterOnchangeHandler}
+											errors={errors}
 										/>
 									) : null}
 								</div>

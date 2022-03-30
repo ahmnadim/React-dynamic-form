@@ -19,7 +19,7 @@ export default class RepeaterInput extends Component {
 			repeater: [],
 			singleInstance: repeater_fields,
 			value: [],
-			validate: validate
+			validate: validate,
 		});
 	}
 
@@ -33,14 +33,14 @@ export default class RepeaterInput extends Component {
 		const validationRules = extractValidateRules(validate);
 		const isValid = validator(e, field, validationRules);
 
-		const errors = {repeater: []}
-		const err = []
+		const errors = { repeater: [] };
+		const err = [];
 		errors.repeater[repeaterIndex] = isValid;
-		
+
 		const _value = [...this.state.value];
 		_value[repeaterIndex][fieldName] = value;
-		
-		this.props.handler({value: _value, errors})
+
+		this.props.handler({ value: _value, errors });
 		this.setState({
 			...this.state,
 			repeater: [...this.state.repeater],
@@ -91,11 +91,14 @@ export default class RepeaterInput extends Component {
 		const { key } = this.props.data;
 		const { class: className, ...rest } = html_attr;
 		const { repeater, value: values } = this.state;
+		const { errors } = this.props;
+
 
 		return (
 			<>
 				<div className='form-group'>
-				<label>{title}</label><br />
+					<label>{title}</label>
+					<br />
 					{repeater.map((item, repeaterIndex) => {
 						return (
 							<span key={`repeater-${repeaterIndex}`} className='single-block'>
@@ -125,6 +128,14 @@ export default class RepeaterInput extends Component {
 												value={values[repeaterIndex][key]}
 												{...{ required }}
 											/>
+											{errors &&
+												errors[type] &&
+												errors[type][repeaterIndex] &&
+												errors[type][repeaterIndex][key] && (
+													<span className='validation-error-msg'>
+														{errors[type][repeaterIndex][key]}
+													</span>
+												)}
 										</span>
 									);
 								})}
