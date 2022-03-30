@@ -64,8 +64,47 @@ export default class componentName extends Component {
 
 	onSubmitHandler = (e) => {
 		e.preventDefault();
-		console.log(e.target);
+		const required = this.checkForRequireErrors();
+		const check = this.checkForErrors();
+		if(check) return null;
+		console.log(check);
+		console.log("submit: ", e);
 	};
+
+	checkForRequireErrors = () => {
+		let status = null;
+		const _values = {}
+	}
+
+	checkForErrors = () => {
+		let status = null;
+		const errors = {...this.state.errors}
+		if(!errors) return null;
+		Object.entries(errors).map(([key, value]) => {
+			console.log("check: ", key, value);
+			console.log("check: ", key, typeof value);
+			if(typeof value == 'object'){
+				if(Array.isArray(value)){
+					value.map(item => {
+						Object.keys(item).map(key => {
+							if(item[key].length !== 0){
+								status = {error: true}
+							}
+						})
+					})
+				}
+			}
+			if(typeof value == 'string'){
+				if(value.length !== 0){
+					status = {error: true}
+				}
+			}
+
+			
+			
+		})
+		return status
+	}
 
 	render() {
 		const { fields, errors } = this.state;
