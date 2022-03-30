@@ -60,21 +60,33 @@ function List() {
 		setRows(_rows);
 	};
 
-	const onSearch = (e, headerKey) => {
-		let searchResult = [];
+	const searchTextChange = (e, headerKey) => {
 		const { name, value } = e.target;
 		const _searchTexts = { ...searchTexts };
 		_searchTexts[headerKey] = value;
 		setSearchTexts(_searchTexts);
+	}
+
+	const onSearch = (e) => {
+		let searchResult = [];
+		
+		let _searchTexts = {...searchTexts};
 		let _rows = [...rows];
 		Object.keys(_searchTexts).map((text, i) => {
-			searchResult = _rows.filter((row) => {
-				if (row[text].toString().toLowerCase().includes(value.toLowerCase())) {
-					return row;
-				}
-			});
-			console.log('searchResults: ', searchResult, _searchTexts);
-			_rows = searchResult;
+			if (_searchTexts[text] != '' || _searchTexts[text].length != 0) {
+				searchResult = _rows.filter((row) => {
+					if (
+						row[text]
+							.toString()
+							.toLowerCase()
+							.includes(_searchTexts[text].toString().toLowerCase())
+					) {
+						return row;
+					}
+				});
+				console.log('searchResults: ', searchResult, _searchTexts);
+				_rows = searchResult;
+			}
 		});
 
 		setSearchResults(searchResult);
@@ -99,12 +111,19 @@ function List() {
 											<input
 												type='text'
 												placeholder='search here...'
-												onChange={(e) => onSearch(e, headerKey)}
+												onChange={(e) => searchTextChange(e, headerKey)}
 											/>
 										</th>
 									);
 								}
 							})}
+							<th className='searchBox' >
+											<input
+												type='button'
+												value={'Search'}
+												onClick={(e) => onSearch(e)}
+											/>
+										</th>
 						</tr>
 					</thead>
 					<thead>
