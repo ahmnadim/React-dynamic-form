@@ -24,7 +24,14 @@ class Update extends Component {
 		const url = `${api_get_form}?id=${userId}`;
 		const res = await fetch(url);
 		const data = await res.json();
-		this.setState({ FormData: data, fields: data.data.fields[0] });
+		let _value = []
+		Object.entries(data.data.fields[0]).map(([key, value]) => {
+			if(key == 'user_hobby'){
+				_value = data.data.fields[0][key]['value']
+			}
+		})
+
+		this.setState({ FormData: data, fields: data.data.fields[0], values: _value });
 	}
 
 	onChangeHandler = (e, field) => {
@@ -84,7 +91,7 @@ class Update extends Component {
 			this.setState({ loading: true });
 			const res = await fetch(api_form_submit, {
 				method: 'POST',
-				body: { data: formValue },
+				body: JSON.stringify(formValue),
 			});
 			const data = await res.json();
 			this.setState({
