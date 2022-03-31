@@ -20,23 +20,20 @@ class Update extends Component {
 	};
 
 	async componentDidMount() {
-		console.log('params: ', this.props);
 		const userId = this.props.params.id;
 		const url = `${api_get_form}?id=${userId}`;
 		const res = await fetch(url);
 		const data = await res.json();
-		console.log(data, res);
 		this.setState({ FormData: data, fields: data.data.fields[0] });
 	}
 
-  onChangeHandler = (e, field) => {
+	onChangeHandler = (e, field) => {
 		const { name, value } = e.target;
 
 		const { validate } = field;
 		const validationRules = extractValidateRules(validate);
 
 		const isValid = validator(e, field, validationRules);
-    console.log("isValid: ", isValid)
 		this.setState({
 			...this.state,
 			fields: {
@@ -80,10 +77,9 @@ class Update extends Component {
 			if (key == 'error') requiredStatus = value;
 		});
 		if (check || requiredStatus) {
-			alert("Please fill the form properly.");
+			alert('Please fill the form properly.');
 			return null;
 		}
-		console.log('submit: ', required, check);
 		try {
 			this.setState({ loading: true });
 			const res = await fetch(api_form_submit, {
@@ -96,6 +92,9 @@ class Update extends Component {
 				msgs: data.messages,
 				res_status: data.status,
 			});
+			setTimeout(() => {
+				this.setState({ ...this.state, msgs: [] });
+			}, 5000);
 		} catch (err) {
 			console.log('err: ', err);
 			this.setState({ loading: false });
@@ -110,9 +109,7 @@ class Update extends Component {
 			Object.keys(value).map((_key) => {
 				if (_key === 'value' && typeof value['value'] == 'string') {
 					_values[key] = value[_key];
-					
 				}
-				
 
 				if (_key == 'required' && typeof value['value'] == 'string') {
 					value['value'].length < 1 || value['value'] == ''
@@ -122,8 +119,7 @@ class Update extends Component {
 				if (_key == 'required' && typeof value['value'] != 'string') {
 					if (Array.isArray(value['value']) && this.state.values) {
 						const _v = [...this.state.values];
-            _values[key] = _v
-            console.log("_v: ", _v, );
+						_values[key] = _v;
 						_v.map((i) => {
 							if (value.length < 1) {
 								status['error'] = true;
@@ -133,7 +129,7 @@ class Update extends Component {
 				}
 			});
 		});
-    status['values'] = _values;
+		status['values'] = _values;
 
 		return status;
 	};
@@ -145,15 +141,14 @@ class Update extends Component {
 		Object.entries(errors).map(([key, value]) => {
 			if (typeof value == 'object') {
 				if (Array.isArray(value)) {
-          console.log("value item : ", value);
 					value.map((item) => {
-						if(item){
-              Object.keys(item).map((key) => {
-                if (item[key].length !== 0) {
-                  status = { error: true };
-                }
-              });
-            }
+						if (item) {
+							Object.keys(item).map((key) => {
+								if (item[key].length !== 0) {
+									status = { error: true };
+								}
+							});
+						}
 					});
 				}
 			}
@@ -166,11 +161,9 @@ class Update extends Component {
 		return status;
 	};
 
-
 	render() {
 		const { fields, errors } = this.state;
 		if (!fields) return <h2>No fields yet.</h2>;
-		console.log('fields: ', fields);
 		return (
 			<>
 				<form onSubmit={this.onSubmitHandler}>

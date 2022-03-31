@@ -14,12 +14,11 @@ function List() {
 
 	let reorderTime;
 
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 
 	useEffect(async () => {
 		const res = await fetch('http://localhost/api/list.php');
 		const data = await res.json();
-		console.log('List: ', data);
 		setHeaders(data.data.headers[0]);
 		setRows(data.data.rows);
 		return () => {
@@ -35,7 +34,6 @@ function List() {
 			body: JSON.stringify(reorder),
 		});
 		const data = await res.json();
-		console.log('reorder: ', data);
 		setReorderResponse(data);
 		reorderTime = setTimeout(() => {
 			setReorderResponse(null);
@@ -108,20 +106,18 @@ function List() {
 						return row;
 					}
 				});
-				// console.log('searchResults: ', searchResult, _searchTexts);
 				_rows = searchResult;
 			}
 		});
 
 		setSearchResults(searchResult);
 		setSearchResultsstatus(true);
-		console.log(searchResult, searchResultsstatus);
 	};
 
 	const redirectToUpdate = (e, id) => {
-		const url = '/update/:id'.replace(":id", id)
-		navigate(url)
-	}
+		const url = '/update/:id'.replace(':id', id);
+		navigate(url);
+	};
 
 	if (!headers) return <h2>No data yet!</h2>;
 
@@ -211,7 +207,11 @@ function List() {
 					</thead>
 					<tbody>
 						{searchResultsstatus && searchResults.length == 0 ? (
-							<tr><td><h2>No data found.</h2></td></tr>
+							<tr>
+								<td>
+									<h2>No data found.</h2>
+								</td>
+							</tr>
 						) : searchResultsstatus ? (
 							searchResults.map((row, rowIndex) => {
 								return (

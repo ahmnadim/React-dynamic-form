@@ -19,13 +19,8 @@ export default class Form extends Component {
 	async componentDidMount() {
 		const res = await fetch('http://localhost/api/get_form.php');
 		const data = await res.json();
-		console.log(data);
 		this.setState({ FormData: data, fields: data.data.fields[0] });
 	}
-
-	// componentDidUpdate(prevProps){
-	//     console.log(prevProps);
-	// }
 
 	onChangeHandler = (e, field) => {
 		const { name, value } = e.target;
@@ -77,9 +72,8 @@ export default class Form extends Component {
 			if (key == 'values') formValue = value;
 			if (key == 'error') requiredStatus = value;
 		});
-		console.log('submit: ', required, check);
 		if (check || requiredStatus) {
-			alert("Please fill the form properly.");
+			alert('Please fill the form properly.');
 			return null;
 		}
 		try {
@@ -89,7 +83,6 @@ export default class Form extends Component {
 				body: { data: formValue },
 			});
 			const data = await res.json();
-			console.log("data ", data)
 			this.setState({
 				loading: false,
 				msgs: data.messages,
@@ -108,13 +101,12 @@ export default class Form extends Component {
 		Object.entries(_fields).map(([key, value]) => {
 			Object.keys(value).map((_key) => {
 				if (_key === 'value' && typeof value['value'] == 'string') {
-					_values[key] = value[_key] == "" ? value['default'] : value[_key];
-					
+					_values[key] = value[_key] == '' ? value['default'] : value[_key];
 				}
-				
 
 				if (_key == 'required' && typeof value['value'] == 'string') {
-					(value['value'].length < 1 || value['value'] == '') && !value['default']
+					(value['value'].length < 1 || value['value'] == '') &&
+					!value['default']
 						? (status['error'] = true)
 						: (status['error'] = false);
 				}
@@ -122,7 +114,7 @@ export default class Form extends Component {
 				if (_key == 'required' && typeof value['value'] != 'string') {
 					if (Array.isArray(value['value']) && this.state.values) {
 						const _v = [...this.state.values];
-						_values[key] = _v
+						_values[key] = _v;
 
 						_v.map((i) => {
 							if (value.length < 1) {
@@ -167,7 +159,6 @@ export default class Form extends Component {
 	render() {
 		const { fields, errors } = this.state;
 		if (!fields) return <h2>No fields yet.</h2>;
-		console.log('fields: ', fields);
 		return (
 			<>
 				<form onSubmit={this.onSubmitHandler}>
