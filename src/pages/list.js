@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function List() {
 	const [headers, setHeaders] = useState(null);
@@ -9,8 +10,11 @@ function List() {
 	const [searchResults, setSearchResults] = useState([]);
 	const [sortType, setSortType] = useState('');
 	const [sortableKey, setSortableKey] = useState('');
+	const [searchResultsstatus, setSearchResultsstatus] = useState(false);
 
 	let reorderTime;
+
+	const navigate = useNavigate()
 
 	useEffect(async () => {
 		const res = await fetch('http://localhost/api/list.php');
@@ -83,6 +87,10 @@ function List() {
 		setSearchTexts(_searchTexts);
 	};
 
+	const onClear = (e) => {
+		setSearchResultsstatus(false);
+	};
+
 	const onSearch = (e) => {
 		let searchResult = [];
 
@@ -106,7 +114,14 @@ function List() {
 		});
 
 		setSearchResults(searchResult);
+		setSearchResultsstatus(true);
+		console.log(searchResult, searchResultsstatus);
 	};
+
+	const redirectToUpdate = (e, id) => {
+		const url = '/update/:id'.replace(":id", id)
+		navigate(url)
+	}
 
 	if (!headers) return <h2>No data yet!</h2>;
 
@@ -116,9 +131,9 @@ function List() {
 				{reorderResponse !== null && reorderResponse.messages && (
 					<div className='alert-container'>
 						{reorderResponse.messages.map((msg, i) => {
-							
 							return (
-								<p key={`${msg}-${i}`}
+								<p
+									key={`${msg}-${i}`}
 									className={
 										reorderResponse?.status == 'success'
 											? 'success-alert'
@@ -157,6 +172,15 @@ function List() {
 									onClick={(e) => onSearch(e)}
 								/>
 							</th>
+							{searchResultsstatus ? (
+								<th className='searchBox'>
+									<input
+										type='button'
+										value={'Clear'}
+										onClick={(e) => onClear(e)}
+									/>
+								</th>
+							) : null}
 						</tr>
 					</thead>
 					<thead>
@@ -186,83 +210,65 @@ function List() {
 						</tr>
 					</thead>
 					<tbody>
-						{rows.map((row, rowIndex) => {
-							return (
-								<tr
-									key={`row-${rowIndex}`}
-									draggable={true}
-									onDragStart={(e) => dragStartHandler(e, rowIndex)}
-									onDragOver={(e) => dragEnterHandler(e, rowIndex)}
-									onDrop={(e) => handleDragEnd(e, rowIndex)}
-								>
-									{Object.keys(headers).map((headerKey, i) => {
-										const item = headers[headerKey];
-										if (!item.hidden) {
-											return (
-												<td
-													scope='row'
-													key={`t-data-${headerKey}-${rowIndex}-${i}`}
-												>
-													{' '}
-													{row[headerKey] && row[headerKey]}
-												</td>
-											);
-										}
-									})}
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-				==========================================================================
-				==========================================================================
-				<table className='table'>
-					<thead>
-						<tr>
-							{Object.keys(headers).map((headerKey, i) => {
-								const item = headers[headerKey];
-								if (!item.hidden) {
-									return (
-										<th
-											scope='col'
-											key={`${headerKey}`}
-											className={item.sortable ? 'cursor-pointer' : ''}
-											onClick={(e) => sortList(e, headerKey, item)}
-										>
-											{item.title}
-										</th>
-									);
-								}
-							})}
-						</tr>
-					</thead>
-					<tbody>
-						{searchResults.map((row, rowIndex) => {
-							return (
-								<tr
-									key={`row-${rowIndex}`}
-									draggable={true}
-									onDragStart={(e) => dragStartHandler(e, rowIndex)}
-									onDragOver={(e) => dragEnterHandler(e, rowIndex)}
-									onDrop={(e) => handleDragEnd(e, rowIndex)}
-								>
-									{Object.keys(headers).map((headerKey, i) => {
-										const item = headers[headerKey];
-										if (!item.hidden) {
-											return (
-												<td
-													scope='row'
-													key={`t-data-${headerKey}-${rowIndex}-${i}`}
-												>
-													{' '}
-													{row[headerKey]}
-												</td>
-											);
-										}
-									})}
-								</tr>
-							);
-						})}
+						{searchResultsstatus && searchResults.length == 0 ? (
+							<tr><td><h2>No data found.</h2></td></tr>
+						) : searchResultsstatus ? (
+							searchResults.map((row, rowIndex) => {
+								return (
+									<tr
+										key={`row-${rowIndex}`}
+										draggable={true}
+										onDragStart={(e) => dragStartHandler(e, rowIndex)}
+										onDragOver={(e) => dragEnterHandler(e, rowIndex)}
+										onDrop={(e) => handleDragEnd(e, rowIndex)}
+										onClick={(e) => redirectToUpdate(e, row['id'])}
+									>
+										{Object.keys(headers).map((headerKey, i) => {
+											const item = headers[headerKey];
+											if (!item.hidden) {
+												return (
+													<td
+														scope='row'
+														key={`t-data-${headerKey}-${rowIndex}-${i}`}
+													>
+														{' '}
+														{row[headerKey]}
+													</td>
+												);
+											}
+										})}
+									</tr>
+								);
+							})
+						) : (
+							rows.map((row, rowIndex) => {
+								return (
+									<tr
+										key={`row-${rowIndex}`}
+										draggable={true}
+										onDragStart={(e) => dragStartHandler(e, rowIndex)}
+										onDragOver={(e) => dragEnterHandler(e, rowIndex)}
+										onDrop={(e) => handleDragEnd(e, rowIndex)}
+										onClick={(e) => redirectToUpdate(e, row['id'])}
+									>
+										{Object.keys(headers).map((headerKey, i) => {
+											const item = headers[headerKey];
+											if (!item.hidden) {
+												return (
+													<td
+														scope='row'
+														key={`t-data-${headerKey}-${rowIndex}-${i}`}
+													>
+														{' '}
+														{row[headerKey] && row[headerKey]}
+													</td>
+												);
+											}
+										})}
+									</tr>
+								);
+							})
+						)}
 					</tbody>
 				</table>
 			</div>

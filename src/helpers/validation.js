@@ -5,7 +5,7 @@ const email = /\S+@\S+\.\S+/;
 
 export const validator = (e, field, rules) => {
 	const { name, value } = e.target;
-	const { validate, title, required } = field;
+	const {  title, required } = field;
 
 	const ifNeedValidation = decideIfNeedValidation(e, field, rules);
 	if (Object.keys(ifNeedValidation).length === 0) return null;
@@ -83,12 +83,12 @@ const validationRules = [
 
 const decideIfNeedValidation = (e, field, rules) => {
 	const { name, value } = e.target;
-	const { validate, title, required } = field;
+	const { title, required } = field;
 
 	const status = {};
 
 	if (required) status[required] = true;
-	if (validate) status[validate] = true;
+	if (Object.keys(field).includes('validate')) status['validate'] = true;
 
 	return status;
 };

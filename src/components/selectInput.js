@@ -19,13 +19,14 @@ export default class SelectInput extends Component {
 
 		return (
 			<>
-				{' '}
+				{' '}<label htmlFor={'select'} >{title}</label>
 				<select
 					name={key}
 					{...{ className: className + ' form-control' }}
 					{...rest}
 					{...{ required }}
-					{...{defaultValue}}
+					value={value != '' ? value : defaultValue}
+					
 					onChange={(e) => this.props.handler(e, this.props.data.field)}
 				>
 					<option key={`opI-`} disabled>{'Select one...'}</option>

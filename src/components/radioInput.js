@@ -24,7 +24,7 @@ export default class RadioInput extends Component {
 									{...{ type }}
 									{...{ value: option.key }}
 									{...{ required }}
-									defaultChecked={defaultValue == option.key}
+									defaultChecked={value != ""? value == option.key  : defaultValue == option.key}
 								/>
                                 {/* FIXME api response have one single id for multiple radio button... as [rest.id] */}
 								<label className='form-check-label' htmlFor={option.key} >

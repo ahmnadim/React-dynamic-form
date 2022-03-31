@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { validator } from '../hepers/validation';
+import { validator } from '../helpers/validation';
 import { extractValidateRules } from '../pages/form';
 
 export default class RepeaterInput extends Component {
@@ -8,30 +8,38 @@ export default class RepeaterInput extends Component {
 		singleInstance: null,
 		value: [],
 		validate: '',
+		isUpdate: false
 	};
 
 	componentDidMount() {
-		const { repeater_fields, validate } = this.props.data.field;
+		const { repeater_fields, validate, value } = this.props.data.field;
 		const fieldsValues = extractValues(repeater_fields);
-		console.log('fields: ', fieldsValues);
+		console.log('field: ', this.props.data.field);
+		let _repeater = [];
+		if (Array.isArray(value)) {
+			_repeater = value;
+			
+		}
 		this.setState({
 			...this.state,
-			repeater: [],
+			repeater: _repeater,
 			singleInstance: repeater_fields,
-			value: [],
+			value: Array.isArray(value) ? value : [],
 			validate: validate,
+			isUpdate: Array.isArray(value) ? true : false
 		});
 	}
 
 	onChangeHandler = (e, repeaterIndex, fieldName) => {
 		const { name, value } = e.target;
-		const fields = [...this.state.repeater];
-		const singleBlock = fields[repeaterIndex];
+		const fields = {...this.props.data.field};
+		const singleBlock = fields['repeater_fields'];
 		const field = singleBlock[fieldName];
 		const { validate } = this.state;
-
+		
 		const validationRules = extractValidateRules(validate);
 		const isValid = validator(e, field, validationRules);
+		console.log("isValid validationRules: ", isValid, validationRules );
 
 		const errors = { repeater: [] };
 		const err = [];
@@ -40,7 +48,7 @@ export default class RepeaterInput extends Component {
 		const _value = [...this.state.value];
 		_value[repeaterIndex][fieldName] = value;
 
-		this.props.handler({ value: _value, errors });
+		this.props.handler({ name: name, value: _value, errors });
 		this.setState({
 			...this.state,
 			repeater: [...this.state.repeater],
@@ -55,8 +63,8 @@ export default class RepeaterInput extends Component {
 
 		const { repeater_fields, validate } = this.props.data.field;
 		const fieldsValues = extractValues(repeater_fields);
-
-		multipleBlock.push(singleBlock);
+		console.log("fieldsValues", fieldsValues, this.state.isUpdate );
+		this.state.isUpdate ? multipleBlock.push(fieldsValues[0]) : multipleBlock.push(singleBlock);
 		this.setState({
 			...this.state,
 			repeater: multipleBlock,
@@ -92,8 +100,7 @@ export default class RepeaterInput extends Component {
 		const { class: className, ...rest } = html_attr;
 		const { repeater, value: values } = this.state;
 		const { errors } = this.props;
-
-
+console.log("errors: ", errors);
 		return (
 			<>
 				<div className='form-group'>
@@ -110,35 +117,71 @@ export default class RepeaterInput extends Component {
 										X
 									</span>
 								}
-								{Object.entries(repeater_fields).map(([key, field], index) => {
-									return (
-										<span key={`single-block-${index}`}>
-											<label htmlFor={rest.id}>{field.title}</label>
-											<input
-												name={key}
-												onChange={(e) =>
-													this.onChangeHandler(e, repeaterIndex, key)
-												}
-												{...{
-													className: className && className + ' form-control',
-												}}
-												{...rest}
-												{...{ type: field.type }}
-												{...{ id: rest.id }}
-												value={values[repeaterIndex][key]}
-												{...{ required }}
-											/>
-											{errors &&
-												errors[type] &&
-												errors[type][repeaterIndex] &&
-												errors[type][repeaterIndex][key] && (
-													<span className='validation-error-msg'>
-														{errors[type][repeaterIndex][key]}
+								{Array.isArray(value)
+									? Object.entries(repeater_fields).map(
+											([key, field], index) => {
+												return (
+													<span key={`single-block-${index}`}>
+														<label htmlFor={rest.id}>{field.title}</label>
+														<input
+															name={key}
+															onChange={(e) =>
+																this.onChangeHandler(e, repeaterIndex, key)
+															}
+															{...{
+																className:
+																	className && className + ' form-control',
+															}}
+															{...rest}
+															{...{ type: field.type }}
+															{...{ id: rest.id }}
+															value={item[key]}
+															{...{ required }}
+														/>
+														{errors &&
+															errors[type] &&
+															errors[type][repeaterIndex] &&
+															errors[type][repeaterIndex][key] && (
+																<span className='validation-error-msg'>
+																	{errors[type][repeaterIndex][key]}
+																</span>
+															)}
 													</span>
-												)}
-										</span>
-									);
-								})}
+												);
+											}
+									  )
+									: Object.entries(repeater_fields).map(
+											([key, field], index) => {
+												return (
+													<span key={`single-block-${index}`}>
+														<label htmlFor={rest.id}>{field.title}</label>
+														<input
+															name={key}
+															onChange={(e) =>
+																this.onChangeHandler(e, repeaterIndex, key)
+															}
+															{...{
+																className:
+																	className && className + ' form-control',
+															}}
+															{...rest}
+															{...{ type: field.type }}
+															{...{ id: rest.id }}
+															value={values[repeaterIndex][key]}
+															{...{ required }}
+														/>
+														{errors &&
+															errors[type] &&
+															errors[type][repeaterIndex] &&
+															errors[type][repeaterIndex][key] && (
+																<span className='validation-error-msg'>
+																	{errors[type][repeaterIndex][key]}
+																</span>
+															)}
+													</span>
+												);
+											}
+									  )}
 							</span>
 						);
 					})}

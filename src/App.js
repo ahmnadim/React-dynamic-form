@@ -37,11 +37,11 @@ function App() {
 										Form
 									</Link>
 								</li>
-								<li className='nav-item'>
+								{/* <li className='nav-item'>
 									<Link to={'/update'} className='nav-link' >
 										Update
 									</Link>
-								</li>
+								</li> */}
 							
 							</ul>
 						</div>
@@ -50,7 +50,7 @@ function App() {
 				<Routes>
 					<Route path='/form' element={<Form />}></Route>
 					<Route path='/list' element={<List />}></Route>
-					<Route path='/update' element={<Update />}></Route>
+					<Route path='/update/:id' element={<Update />}></Route>
 					<Route path='/' element={<h1>Home page</h1>}></Route>
 				</Routes>
 			</Router>
